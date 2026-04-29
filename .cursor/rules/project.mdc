@@ -24,3 +24,15 @@ Quick reference:
   [`globals.css`](mdc:src/app/globals.css). Prefer `bg-surface`,
   `text-foreground-muted`, the `wood-*` scale, and `accent` over raw
   colors.
+- Naming: folders / component files / routes are `kebab-case`; React
+  components and types are `PascalCase`; hooks are `useCamelCase`;
+  variables and functions are `camelCase`; module constants are
+  `UPPER_SNAKE_CASE`; Postgres tables/columns are `snake_case` (plural
+  tables, singular columns, foreign keys as `<table_singular>_id`).
+  Full table in [README](mdc:README.md#naming-conventions).
+- Commits: Conventional Commits (`<type>(<scope>): <subject>`,
+  imperative, lowercase, no period). Allowed types: `feat`, `fix`,
+  `refactor`, `perf`, `docs`, `test`, `build`, `ci`, `chore`, `style`,
+  `revert`. Branches: `<type>/<short-kebab-description>`. Only commit
+  when the user explicitly asks. Full guide in
+  [README](mdc:README.md#commits-and-branches).

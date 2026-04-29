@@ -80,6 +80,50 @@ permissions can diverge without forcing a rewrite.
   non-obvious intent or trade-offs.
 - `npm run lint` must pass before committing.
 
+### Naming conventions
+Full table lives in the project [README](./README.md#naming-conventions).
+Hot list:
+
+- Folders, component files, route segments: `kebab-case`
+  (`purchase-orders/`, `app-shell.tsx`).
+- Next.js special files keep their exact lowercase names: `page.tsx`,
+  `layout.tsx`, `route.ts`, `loading.tsx`, `error.tsx`, `not-found.tsx`,
+  `template.tsx`, `default.tsx`, `proxy.ts`, `instrumentation.ts`.
+- Route groups: `(kebab-case)`. Private folders: `_kebab-case/`.
+- React components and types: `PascalCase`. Hooks: `useCamelCase`.
+  Variables and functions: `camelCase`. Module constants:
+  `UPPER_SNAKE_CASE`. Booleans: `is*` / `has*` / `can*` / `should*`.
+- Component prop types: `<Component>Props`.
+- Event handler functions are `handle<Event>`, the props they bind to
+  are `on<Event>`.
+- URLs: lowercase `kebab-case`, plural for collections, singular plus id
+  for detail (`/purchase-orders`, `/branches/[branchId]`). Query params
+  are `camelCase`.
+- Env vars: `UPPER_SNAKE_CASE`. Only prefix with `NEXT_PUBLIC_` when the
+  value is safe for the browser bundle.
+- Postgres / Supabase: `snake_case` everywhere. Tables plural
+  (`purchase_orders`), columns singular (`branch_id`, `created_at`).
+  Foreign keys: `<referenced_table_singular>_id`. Booleans: `is_*` /
+  `has_*`. Timestamps: `created_at`, `updated_at`, `deleted_at` as
+  `timestamptz`. Don't ad-hoc convert to camelCase in app code — let the
+  generated types stay snake_case and convert only at boundaries that
+  need it.
+
+### Commits
+Conventional Commits. Full guide in the
+[README](./README.md#commits-and-branches).
+
+- Format: `<type>(<scope>): <subject>` — imperative, lowercase, no period.
+- Allowed types: `feat`, `fix`, `refactor`, `perf`, `docs`, `test`,
+  `build`, `ci`, `chore`, `style`, `revert`.
+- Common scopes: `pos`, `inventory`, `branch`, `admin`, `auth`, `db`,
+  `supabase`, `ui`, `config`, `deps`, `infra`.
+- Breaking changes: append `!` to the type/scope **and** add a
+  `BREAKING CHANGE:` footer.
+- Branches: `<type>/<short-kebab-description>` (e.g., `feat/pos-cart`).
+- Never invent commits the user didn't ask for. Only commit when
+  explicitly instructed.
+
 ## Database
 - Schema is **not yet** defined. When it is, regenerate types into
   `src/lib/supabase/types.ts` (command in the file header).
