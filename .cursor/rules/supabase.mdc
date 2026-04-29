@@ -1,0 +1,38 @@
+---
+description: Patterns for using Supabase via @supabase/ssr
+globs:
+  - "src/lib/supabase/**/*"
+  - "src/proxy.ts"
+  - "src/app/**/route.ts"
+  - "src/app/**/page.tsx"
+  - "src/app/**/layout.tsx"
+---
+
+# Supabase usage
+
+This project uses `@supabase/ssr` (the consolidated replacement for the
+deprecated `@supabase/auth-helpers-*` family). Always pick the correct
+client for the context:
+
+| Context                                    | Helper                                                              |
+| ------------------------------------------ | ------------------------------------------------------------------- |
+| Client Component, hook, event handler      | `createClient` from `@/lib/supabase/client`                         |
+| Server Component, Server Action, Route Handler | `await createClient()` from `@/lib/supabase/server`             |
+| Trusted server work that bypasses RLS      | `createAdminClient()` from `@/lib/supabase/admin` (server-only)     |
+| `src/proxy.ts` only                        | `updateSession(request)` from `@/lib/supabase/session`              |
+
+Authorization rules:
+
+- Use `supabase.auth.getClaims()` for any decision that gates routing or
+  data access. It validates the JWT.
+- `getSession()` reads cookies without verification — never use it to
+  authorize.
+- `getUser()` always hits the Supabase Auth server; reach for it when you
+  need the current user record.
+
+When adding new tables:
+
+1. Enable Row Level Security (`alter table … enable row level security;`).
+2. Add policies for `select`, `insert`, `update`, `delete` as appropriate.
+3. Regenerate `src/lib/supabase/types.ts` so the typed clients pick up the
+   new shape.

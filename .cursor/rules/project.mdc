@@ -1,0 +1,26 @@
+---
+description: Project-wide conventions for the Cafe Management System
+alwaysApply: true
+---
+
+The full project guide lives in [AGENTS.md](mdc:AGENTS.md). Read it before
+suggesting non-trivial changes — Next.js 16, `@supabase/ssr`, and Tailwind
+v4 all have conventions that differ from older versions.
+
+Quick reference:
+
+- Routes: role-based route groups under `src/app/` (`(pos)`, `(inventory)`,
+  `(branch)`, `(admin)`, `(auth)`).
+- Supabase: import `createClient` from
+  [`@/lib/supabase/server`](mdc:src/lib/supabase/server.ts) on the server,
+  [`@/lib/supabase/client`](mdc:src/lib/supabase/client.ts) in the browser,
+  and [`@/lib/supabase/admin`](mdc:src/lib/supabase/admin.ts) only when you
+  need to bypass RLS from a trusted server context.
+- Session refresh runs in [`src/proxy.ts`](mdc:src/proxy.ts) (Next.js 16
+  renamed `middleware.ts` to `proxy.ts`). Don't add a second one.
+- Env vars go through [`@/lib/env`](mdc:src/lib/env.ts) and must be added
+  to [`.env.example`](mdc:.env.example) in the same change.
+- Styling uses Tailwind v4 design tokens defined in
+  [`globals.css`](mdc:src/app/globals.css). Prefer `bg-surface`,
+  `text-foreground-muted`, the `wood-*` scale, and `accent` over raw
+  colors.

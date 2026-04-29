@@ -1,0 +1,94 @@
+@import "tailwindcss";
+
+/*
+ * Design tokens
+ *
+ * The visual language pairs warm wood neutrals with professional slate grays
+ * and a single accent for primary calls-to-action. Tokens are exposed both
+ * as CSS variables (for ad-hoc use) and as Tailwind theme values via the
+ * `@theme inline` block below, so utilities like `bg-surface` or
+ * `text-accent` work everywhere.
+ */
+
+:root {
+  --background: #f7f3ee;
+  --surface: #ffffff;
+  --surface-muted: #efe7dc;
+  --foreground: #1f2937;
+  --foreground-muted: #475569;
+  --border: #e2d9cd;
+
+  --wood-50: #faf6f1;
+  --wood-100: #f0e6d6;
+  --wood-200: #ddc9a8;
+  --wood-300: #c6a377;
+  --wood-400: #a87f4d;
+  --wood-500: #8a5a2b;
+  --wood-600: #6b4220;
+  --wood-700: #4d2f17;
+
+  --slate-50: #f8fafc;
+  --slate-100: #f1f5f9;
+  --slate-200: #e2e8f0;
+  --slate-300: #cbd5e1;
+  --slate-500: #64748b;
+  --slate-700: #334155;
+  --slate-900: #0f172a;
+
+  --accent: #2f6b3a;
+  --accent-foreground: #f7f3ee;
+  --accent-hover: #265730;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-surface: var(--surface);
+  --color-surface-muted: var(--surface-muted);
+  --color-foreground: var(--foreground);
+  --color-foreground-muted: var(--foreground-muted);
+  --color-border: var(--border);
+
+  --color-wood-50: var(--wood-50);
+  --color-wood-100: var(--wood-100);
+  --color-wood-200: var(--wood-200);
+  --color-wood-300: var(--wood-300);
+  --color-wood-400: var(--wood-400);
+  --color-wood-500: var(--wood-500);
+  --color-wood-600: var(--wood-600);
+  --color-wood-700: var(--wood-700);
+
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent-hover: var(--accent-hover);
+
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+
+  --radius-sm: 0.375rem;
+  --radius-md: 0.625rem;
+  --radius-lg: 0.875rem;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #14110d;
+    --surface: #1c1916;
+    --surface-muted: #25211c;
+    --foreground: #f5efe6;
+    --foreground-muted: #b9b1a3;
+    --border: #2f2a23;
+
+    --accent: #5fa86a;
+    --accent-foreground: #0f1a11;
+    --accent-hover: #79bd83;
+  }
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-sans), ui-sans-serif, system-ui, -apple-system,
+    "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
