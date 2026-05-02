@@ -164,7 +164,7 @@ export default function LoginPage() {
             <Button
               size="lg"
               className="w-full"
-              variant="wood"
+              variant="default"
               type="submit"
               disabled={isLoading}
             >

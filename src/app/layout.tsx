@@ -6,6 +6,8 @@ import {
 } from "next/font/google";
 
 import "./globals.css";
+import { ThemeProvider } from "@/components/theme-provider";
+import { TooltipProvider } from "@/components/ui/tooltip";
 
 const montserrat = Montserrat({
   variable: "--font-montserrat",
@@ -40,9 +42,17 @@ export default function RootLayout({
     <html
       lang="en"
       className={`${montserrat.variable} ${sourceSerif.variable} ${sourceCodePro.variable} h-full antialiased`}
+      suppressHydrationWarning
     >
       <body className="min-h-full bg-background text-foreground">
-        {children}
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="system"
+          enableSystem
+          disableTransitionOnChange
+        >
+          <TooltipProvider>{children}</TooltipProvider>
+        </ThemeProvider>
       </body>
     </html>
   );

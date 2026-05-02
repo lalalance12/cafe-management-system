@@ -5,10 +5,18 @@ import { createClient } from "@/lib/supabase/server";
 import { AppShell, type NavItem } from "@/components/layout/app-shell";
 
 const NAV: ReadonlyArray<NavItem> = [
-  { href: "/inventory", label: "Stock levels" },
-  { href: "/inventory/alerts", label: "Low stock alerts" },
-  { href: "/inventory/suppliers", label: "Suppliers" },
-  { href: "/inventory/purchase-orders", label: "Purchase orders" },
+  { href: "/inventory", label: "Stock levels", icon: "package" },
+  {
+    href: "/inventory/alerts",
+    label: "Low stock alerts",
+    icon: "triangleAlert",
+  },
+  { href: "/inventory/suppliers", label: "Suppliers", icon: "truck" },
+  {
+    href: "/inventory/purchase-orders",
+    label: "Purchase orders",
+    icon: "clipboardList",
+  },
 ];
 
 export default async function InventoryLayout({

@@ -1,10 +1,12 @@
-import Link from "next/link";
+import { cookies } from "next/headers";
 import type { ReactNode } from "react";
 
-export type NavItem = {
-  href: string;
-  label: string;
-};
+import { SidebarProvider } from "@/components/ui/sidebar";
+import { AppSidebar } from "@/components/layout/app-sidebar";
+import type { NavItem } from "@/components/layout/app-sidebar";
+import { AppNavbar } from "@/components/layout/app-navbar";
+
+export type { NavItem };
 
 type AppShellProps = {
   /** Short label shown above the section title. */
@@ -21,60 +23,28 @@ type AppShellProps = {
 /**
  * Generic shell shared by every authenticated section.
  *
- * Each role-specific layout wraps its pages in this component so the chrome
- * (sidebar, header, etc.) stays consistent without coupling roles together.
+ * Wraps content in the shadcn SidebarProvider so the sidebar state is
+ * persisted via cookie across server renders. Client boundaries are
+ * isolated inside AppSidebar and AppNavbar.
  */
-export function AppShell({
+export async function AppShell({
   eyebrow,
   title,
   nav,
   actions,
   children,
 }: AppShellProps) {
-  return (
-    <div className="grid min-h-dvh grid-cols-1 lg:grid-cols-[16rem_1fr]">
-      <aside className="hidden border-r border-border bg-surface lg:flex lg:flex-col">
-        <div className="flex flex-col gap-1 px-6 py-6">
-          <Link
-            href="/"
-            className="text-xs font-medium uppercase tracking-[0.2em] text-wood-500 hover:text-wood-600"
-          >
-            {eyebrow}
-          </Link>
-          <span className="text-xl font-semibold tracking-tight">{title}</span>
-        </div>
-        <nav className="flex flex-col gap-1 px-3 pb-6">
-          {nav.map((item) => (
-            <Link
-              key={item.href}
-              href={item.href}
-              className="rounded-md px-3 py-2 text-sm font-medium text-foreground-muted transition-colors hover:bg-surface-muted hover:text-foreground"
-            >
-              {item.label}
-            </Link>
-          ))}
-        </nav>
-        <div className="mt-auto px-6 py-6 text-xs text-foreground-muted">
-          <Link href="/" className="hover:text-foreground">
-            &larr; Back to roles
-          </Link>
-        </div>
-      </aside>
+  const cookieStore = await cookies();
+  const defaultOpen =
+    cookieStore.get("sidebar_state")?.value === "true";
 
-      <div className="flex min-h-dvh flex-col">
-        <header className="flex items-center justify-between gap-4 border-b border-border bg-surface px-6 py-4">
-          <div className="flex flex-col">
-            <span className="text-[10px] font-medium uppercase tracking-[0.2em] text-wood-500 lg:hidden">
-              {eyebrow}
-            </span>
-            <span className="text-sm font-semibold tracking-tight lg:hidden">
-              {title}
-            </span>
-          </div>
-          <div className="flex items-center gap-3">{actions}</div>
-        </header>
-        <main className="flex-1 px-6 py-8">{children}</main>
-      </div>
-    </div>
+  return (
+    <SidebarProvider defaultOpen={defaultOpen}>
+      <AppSidebar eyebrow={eyebrow} title={title} nav={nav} />
+      <main className="flex w-full min-h-dvh flex-col">
+        <AppNavbar actions={actions} />
+        <div className="flex-1 px-6 py-8">{children}</div>
+      </main>
+    </SidebarProvider>
   );
 }
