@@ -109,6 +109,7 @@ export default function LoginPage() {
                       aria-invalid={fieldState.invalid}
                       placeholder="you@company.com"
                       autoComplete="email"
+                      className="rounded-sm"
                     />
                     {fieldState.invalid && (
                       <FieldError errors={[fieldState.error]} />
@@ -129,7 +130,7 @@ export default function LoginPage() {
                         type={isPasswordVisible ? "text" : "password"}
                         aria-invalid={fieldState.invalid}
                         autoComplete="current-password"
-                        className="pe-10"
+                        className="pe-10 rounded-sm"
                       />
                       <Button
                         type="button"
@@ -163,8 +164,8 @@ export default function LoginPage() {
             )}
             <Button
               size="lg"
-              className="w-full"
-              variant="default"
+              className="w-full rounded-sm"
+              variant="wood"
               type="submit"
               disabled={isLoading}
             >
