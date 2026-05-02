@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 import { Eye, EyeOff } from "lucide-react";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -15,6 +16,15 @@ import {
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { createClient } from "@/lib/supabase/client";
+
+/** Maps the branch_staff.role enum value to the role's root route. */
+const ROLE_ROUTES: Record<string, string> = {
+  pos: "/pos",
+  inventory: "/inventory",
+  branch_manager: "/branch",
+  admin: "/admin",
+};
 
 const formSchema = z.object({
   email: z.string().min(1, "Email is required").email("Invalid email"),
@@ -25,7 +35,10 @@ const formSchema = z.object({
 });
 
 export default function LoginPage() {
+  const router = useRouter();
   const [isPasswordVisible, setIsPasswordVisible] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [authError, setAuthError] = useState<string | null>(null);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -35,8 +48,36 @@ export default function LoginPage() {
     },
   });
 
-  function onSubmit(data: z.infer<typeof formSchema>) {
-    console.log(data);
+  async function onSubmit({ email, password }: z.infer<typeof formSchema>) {
+    setIsLoading(true);
+    setAuthError(null);
+
+    const supabase = createClient();
+
+    const { data: authData, error: signInError } =
+      await supabase.auth.signInWithPassword({ email, password });
+
+    if (signInError || !authData.user) {
+      setAuthError(signInError?.message ?? "Sign in failed. Please try again.");
+      setIsLoading(false);
+      return;
+    }
+
+    // Look up the user's assigned role in branch_staff.
+    // One employee = one branch, so .single() is safe for now.
+    // Cast needed because Database types are still a placeholder (types.ts).
+    const { data: rawStaff } = await supabase
+      .from("branch_staff")
+      .select("role")
+      .eq("profile_id", authData.user.id)
+      .single();
+    const staffRecord = rawStaff as { role: string } | null;
+
+    const destination = staffRecord?.role
+      ? (ROLE_ROUTES[staffRecord.role] ?? "/")
+      : "/";
+
+    router.push(destination);
   }
 
   return (
@@ -115,8 +156,19 @@ export default function LoginPage() {
                 )}
               />
             </FieldGroup>
-            <Button size="lg" className="w-full" variant="wood" type="submit">
-              Sign in
+            {authError && (
+              <p role="alert" className="text-sm text-red-600">
+                {authError}
+              </p>
+            )}
+            <Button
+              size="lg"
+              className="w-full"
+              variant="wood"
+              type="submit"
+              disabled={isLoading}
+            >
+              {isLoading ? "Signing in…" : "Sign in"}
             </Button>
           </form>
         </div>
