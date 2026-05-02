@@ -1,6 +1,8 @@
 "use client";
 
+import { useState } from "react";
 import Image from "next/image";
+import { Eye, EyeOff } from "lucide-react";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Controller, useForm } from "react-hook-form";
@@ -23,6 +25,8 @@ const formSchema = z.object({
 });
 
 export default function LoginPage() {
+  const [isPasswordVisible, setIsPasswordVisible] = useState(false);
+
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -77,14 +81,33 @@ export default function LoginPage() {
                 render={({ field, fieldState }) => (
                   <Field data-invalid={fieldState.invalid}>
                     <FieldLabel htmlFor="form-password">Password</FieldLabel>
-                    <Input
-                      {...field}
-                      id="form-password"
-                      type="password"
-                      aria-invalid={fieldState.invalid}
-                      placeholder="••••••••"
-                      autoComplete="current-password"
-                    />
+                    <div className="relative">
+                      <Input
+                        {...field}
+                        id="form-password"
+                        type={isPasswordVisible ? "text" : "password"}
+                        aria-invalid={fieldState.invalid}
+                        autoComplete="current-password"
+                        className="pe-10"
+                      />
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="icon-sm"
+                        className="text-foreground-muted hover:text-foreground absolute inset-e-0.5 top-1/2 -translate-y-1/2"
+                        onClick={() => setIsPasswordVisible((v) => !v)}
+                        aria-label={
+                          isPasswordVisible ? "Hide password" : "Show password"
+                        }
+                        aria-pressed={isPasswordVisible}
+                      >
+                        {isPasswordVisible ? (
+                          <EyeOff aria-hidden />
+                        ) : (
+                          <Eye aria-hidden />
+                        )}
+                      </Button>
+                    </div>
                     {fieldState.invalid && (
                       <FieldError errors={[fieldState.error]} />
                     )}
@@ -93,7 +116,7 @@ export default function LoginPage() {
               />
             </FieldGroup>
             <Button size="lg" className="w-full" variant="wood" type="submit">
-              Login
+              Sign in
             </Button>
           </form>
         </div>
