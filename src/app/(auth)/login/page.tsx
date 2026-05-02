@@ -1,64 +1,111 @@
-import type { Metadata } from "next";
-import Link from "next/link";
+"use client";
 
-export const metadata: Metadata = { title: "Sign in" };
+import Image from "next/image";
+import { z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { Controller, useForm } from "react-hook-form";
+
+import {
+  Field,
+  FieldError,
+  FieldGroup,
+  FieldLabel,
+} from "@/components/ui/field";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+
+const formSchema = z.object({
+  email: z.string().min(1, "Email is required").email("Invalid email"),
+  password: z
+    .string()
+    .min(1, "Password is required")
+    .min(8, "Password must have at least 8 characters"),
+});
 
 export default function LoginPage() {
+  const form = useForm<z.infer<typeof formSchema>>({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      email: "",
+      password: "",
+    },
+  });
+
+  function onSubmit(data: z.infer<typeof formSchema>) {
+    console.log(data);
+  }
+
   return (
-    <div className="flex min-h-dvh items-center justify-center px-6 py-16">
-      <div className="flex w-full max-w-sm flex-col gap-6 rounded-lg border border-border bg-surface p-8 shadow-sm">
-        <div className="flex flex-col gap-1">
-          <span className="text-xs font-medium uppercase tracking-[0.2em] text-wood-500">
-            Cafe Management System
-          </span>
-          <h1 className="text-2xl font-semibold tracking-tight">Sign in</h1>
-          <p className="text-sm text-foreground-muted">
-            Authentication is wired up to Supabase. Hook this form to
-            <code className="mx-1 rounded bg-surface-muted px-1.5 py-0.5 font-mono text-xs">
-              supabase.auth.signInWithPassword
-            </code>
-            once you decide on the auth flow.
-          </p>
-        </div>
-
-        <form className="flex flex-col gap-4">
-          <label className="flex flex-col gap-1 text-sm">
-            <span className="font-medium">Email</span>
-            <input
-              type="email"
-              name="email"
-              autoComplete="email"
-              className="rounded-md border border-border bg-background px-3 py-2 text-sm focus:border-accent focus:outline-none"
-              disabled
-              placeholder="you@example.com"
-            />
-          </label>
-          <label className="flex flex-col gap-1 text-sm">
-            <span className="font-medium">Password</span>
-            <input
-              type="password"
-              name="password"
-              autoComplete="current-password"
-              className="rounded-md border border-border bg-background px-3 py-2 text-sm focus:border-accent focus:outline-none"
-              disabled
-              placeholder="\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022"
-            />
-          </label>
-          <button
-            type="button"
-            disabled
-            className="rounded-md bg-accent px-3 py-2 text-sm font-medium text-accent-foreground opacity-60"
+    <div className="flex min-h-dvh items-center justify-center">
+      <div className="grid h-full min-h-dvh w-full grid-cols-1 md:grid-cols-2">
+        <div className="flex w-full flex-col items-center justify-center gap-6 p-8 sm:p-10 md:p-12">
+          <div className="w-full max-w-md space-y-1 text-center md:text-left">
+            <h1 className="text-3xl font-bold tracking-tight text-foreground">
+              Cafe Management System
+            </h1>
+          </div>
+          <form
+            id="form-login"
+            onSubmit={form.handleSubmit(onSubmit)}
+            className="flex w-full max-w-md flex-col gap-8"
           >
-            Sign in (not wired up yet)
-          </button>
-        </form>
-
-        <Link
-          href="/"
-          className="text-center text-xs text-foreground-muted hover:text-foreground"
-        >
-          &larr; Back to roles
-        </Link>
+            <FieldGroup>
+              <Controller
+                name="email"
+                control={form.control}
+                render={({ field, fieldState }) => (
+                  <Field data-invalid={fieldState.invalid}>
+                    <FieldLabel htmlFor="form-email">Email</FieldLabel>
+                    <Input
+                      {...field}
+                      id="form-email"
+                      type="email"
+                      inputMode="email"
+                      aria-invalid={fieldState.invalid}
+                      placeholder="you@company.com"
+                      autoComplete="email"
+                    />
+                    {fieldState.invalid && (
+                      <FieldError errors={[fieldState.error]} />
+                    )}
+                  </Field>
+                )}
+              />
+              <Controller
+                name="password"
+                control={form.control}
+                render={({ field, fieldState }) => (
+                  <Field data-invalid={fieldState.invalid}>
+                    <FieldLabel htmlFor="form-password">Password</FieldLabel>
+                    <Input
+                      {...field}
+                      id="form-password"
+                      type="password"
+                      aria-invalid={fieldState.invalid}
+                      placeholder="••••••••"
+                      autoComplete="current-password"
+                    />
+                    {fieldState.invalid && (
+                      <FieldError errors={[fieldState.error]} />
+                    )}
+                  </Field>
+                )}
+              />
+            </FieldGroup>
+            <Button size="lg" className="w-full" variant="wood" type="submit">
+              Login
+            </Button>
+          </form>
+        </div>
+        <div className="relative hidden min-h-0 md:block">
+          <Image
+            src="/images/brew_co_login_image.webp"
+            alt="Café ambiance"
+            fill
+            className="object-cover"
+            sizes="(max-width: 767px) 0vw, 50vw"
+          />
+        </div>
       </div>
     </div>
   );
