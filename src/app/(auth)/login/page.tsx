@@ -1,64 +1,187 @@
-import type { Metadata } from "next";
-import Link from "next/link";
+"use client";
 
-export const metadata: Metadata = { title: "Sign in" };
+import { useState } from "react";
+import Image from "next/image";
+import { useRouter } from "next/navigation";
+import { Eye, EyeOff } from "lucide-react";
+import { z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { Controller, useForm } from "react-hook-form";
+
+import {
+  Field,
+  FieldError,
+  FieldGroup,
+  FieldLabel,
+} from "@/components/ui/field";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { createClient } from "@/lib/supabase/client";
+
+/** Maps the branch_staff.role enum value to the role's root route. */
+const ROLE_ROUTES: Record<string, string> = {
+  pos: "/pos",
+  inventory: "/inventory",
+  branch_manager: "/branch",
+  admin: "/admin",
+};
+
+const formSchema = z.object({
+  email: z.string().min(1, "Email is required").email("Invalid email"),
+  password: z
+    .string()
+    .min(1, "Password is required")
+    .min(8, "Password must have at least 8 characters"),
+});
 
 export default function LoginPage() {
+  const router = useRouter();
+  const [isPasswordVisible, setIsPasswordVisible] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [authError, setAuthError] = useState<string | null>(null);
+
+  const form = useForm<z.infer<typeof formSchema>>({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      email: "",
+      password: "",
+    },
+  });
+
+  async function onSubmit({ email, password }: z.infer<typeof formSchema>) {
+    setIsLoading(true);
+    setAuthError(null);
+
+    const supabase = createClient();
+
+    const { data: authData, error: signInError } =
+      await supabase.auth.signInWithPassword({ email, password });
+
+    if (signInError || !authData.user) {
+      setAuthError(signInError?.message ?? "Sign in failed. Please try again.");
+      setIsLoading(false);
+      return;
+    }
+
+    // Look up the user's assigned role in branch_staff.
+    // One employee = one branch, so .single() is safe for now.
+    // Cast needed because Database types are still a placeholder (types.ts).
+    const { data: rawStaff } = await supabase
+      .from("branch_staff")
+      .select("role")
+      .eq("profile_id", authData.user.id)
+      .single();
+    const staffRecord = rawStaff as { role: string } | null;
+
+    const destination = staffRecord?.role
+      ? (ROLE_ROUTES[staffRecord.role] ?? "/")
+      : "/";
+
+    router.push(destination);
+  }
+
   return (
-    <div className="flex min-h-dvh items-center justify-center px-6 py-16">
-      <div className="flex w-full max-w-sm flex-col gap-6 rounded-lg border border-border bg-surface p-8 shadow-sm">
-        <div className="flex flex-col gap-1">
-          <span className="text-xs font-medium uppercase tracking-[0.2em] text-wood-500">
-            Cafe Management System
-          </span>
-          <h1 className="text-2xl font-semibold tracking-tight">Sign in</h1>
-          <p className="text-sm text-foreground-muted">
-            Authentication is wired up to Supabase. Hook this form to
-            <code className="mx-1 rounded bg-surface-muted px-1.5 py-0.5 font-mono text-xs">
-              supabase.auth.signInWithPassword
-            </code>
-            once you decide on the auth flow.
-          </p>
-        </div>
-
-        <form className="flex flex-col gap-4">
-          <label className="flex flex-col gap-1 text-sm">
-            <span className="font-medium">Email</span>
-            <input
-              type="email"
-              name="email"
-              autoComplete="email"
-              className="rounded-md border border-border bg-background px-3 py-2 text-sm focus:border-accent focus:outline-none"
-              disabled
-              placeholder="you@example.com"
-            />
-          </label>
-          <label className="flex flex-col gap-1 text-sm">
-            <span className="font-medium">Password</span>
-            <input
-              type="password"
-              name="password"
-              autoComplete="current-password"
-              className="rounded-md border border-border bg-background px-3 py-2 text-sm focus:border-accent focus:outline-none"
-              disabled
-              placeholder="\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022"
-            />
-          </label>
-          <button
-            type="button"
-            disabled
-            className="rounded-md bg-accent px-3 py-2 text-sm font-medium text-accent-foreground opacity-60"
+    <div className="flex min-h-dvh items-center justify-center">
+      <div className="grid h-full min-h-dvh w-full grid-cols-1 md:grid-cols-2">
+        <div className="flex w-full flex-col items-center justify-center gap-6 p-8 sm:p-10 md:p-12">
+          <div className="w-full max-w-md space-y-1 text-center md:text-left">
+            <h1 className="text-3xl font-bold tracking-tight text-foreground">
+              Cafe Management System
+            </h1>
+          </div>
+          <form
+            id="form-login"
+            onSubmit={form.handleSubmit(onSubmit)}
+            className="flex w-full max-w-md flex-col gap-8"
           >
-            Sign in (not wired up yet)
-          </button>
-        </form>
-
-        <Link
-          href="/"
-          className="text-center text-xs text-foreground-muted hover:text-foreground"
-        >
-          &larr; Back to roles
-        </Link>
+            <FieldGroup>
+              <Controller
+                name="email"
+                control={form.control}
+                render={({ field, fieldState }) => (
+                  <Field data-invalid={fieldState.invalid}>
+                    <FieldLabel htmlFor="form-email">Email</FieldLabel>
+                    <Input
+                      {...field}
+                      id="form-email"
+                      type="email"
+                      inputMode="email"
+                      aria-invalid={fieldState.invalid}
+                      placeholder="you@company.com"
+                      autoComplete="email"
+                      className="rounded-sm"
+                    />
+                    {fieldState.invalid && (
+                      <FieldError errors={[fieldState.error]} />
+                    )}
+                  </Field>
+                )}
+              />
+              <Controller
+                name="password"
+                control={form.control}
+                render={({ field, fieldState }) => (
+                  <Field data-invalid={fieldState.invalid}>
+                    <FieldLabel htmlFor="form-password">Password</FieldLabel>
+                    <div className="relative">
+                      <Input
+                        {...field}
+                        id="form-password"
+                        type={isPasswordVisible ? "text" : "password"}
+                        aria-invalid={fieldState.invalid}
+                        autoComplete="current-password"
+                        className="pe-10 rounded-sm"
+                      />
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="icon-sm"
+                        className="text-foreground-muted hover:text-foreground absolute inset-e-0.5 top-1/2 -translate-y-1/2"
+                        onClick={() => setIsPasswordVisible((v) => !v)}
+                        aria-label={
+                          isPasswordVisible ? "Hide password" : "Show password"
+                        }
+                        aria-pressed={isPasswordVisible}
+                      >
+                        {isPasswordVisible ? (
+                          <EyeOff aria-hidden />
+                        ) : (
+                          <Eye aria-hidden />
+                        )}
+                      </Button>
+                    </div>
+                    {fieldState.invalid && (
+                      <FieldError errors={[fieldState.error]} />
+                    )}
+                  </Field>
+                )}
+              />
+            </FieldGroup>
+            {authError && (
+              <p role="alert" className="text-sm text-red-600">
+                {authError}
+              </p>
+            )}
+            <Button
+              size="lg"
+              className="w-full rounded-sm"
+              variant="wood"
+              type="submit"
+              disabled={isLoading}
+            >
+              {isLoading ? "Signing in…" : "Sign in"}
+            </Button>
+          </form>
+        </div>
+        <div className="relative hidden min-h-0 md:block">
+          <Image
+            src="/images/brew_co_login_image.webp"
+            alt="Café ambiance"
+            fill
+            className="object-cover"
+            sizes="(max-width: 767px) 0vw, 50vw"
+          />
+        </div>
       </div>
     </div>
   );
