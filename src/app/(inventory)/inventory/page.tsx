@@ -12,12 +12,7 @@ import {
 } from "@/components/ui/table";
 import SummaryCard from "../components/SummaryCard";
 import type { JoinedStockRow } from "./helpers";
-import {
-  getStatus,
-  PROGRESS_TONE,
-  STATUS_LABEL,
-  STATUS_TONE,
-} from "./helpers";
+import { getStatus, PROGRESS_TONE, STATUS_LABEL, STATUS_TONE } from "./helpers";
 
 export const metadata: Metadata = { title: "Inventory" };
 
@@ -75,7 +70,7 @@ export default async function InventoryPage() {
         <SummaryCard label="Open purchase orders" value="—" />
       </section>
 
-      <section className="bg-surface flex flex-col gap-4 rounded-lg border border-border p-4">
+      <section className="bg-[#f9f9f9] dark:bg-[#1a1a1a] flex flex-col gap-4 rounded-lg border border-[rgba(0,0,0,0.1)] dark:border-[#D6D6D61F] p-4">
         <div className="flex items-center justify-between">
           <h2 className="text-base font-semibold tracking-tight">
             All ingredients
