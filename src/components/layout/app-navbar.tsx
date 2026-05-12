@@ -77,7 +77,7 @@ export function AppNavbar({ actions }: AppNavbarProps) {
   }
 
   return (
-    <nav className="sticky top-0 z-10 bg-sidebar flex items-center justify-between px-4 py-2 border-b border-border dark:border-border">
+    <nav className="sticky top-0 z-10 bg-sidebar flex items-center justify-between px-4 py-2 border-b border-border">
       <div className="flex items-center gap-2">
         <SidebarTrigger />
       </div>
