@@ -10,58 +10,23 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import SummaryCard from "../components/SummaryCard";
+import type { JoinedStockRow } from "./helpers";
+import {
+  getStatus,
+  PROGRESS_TONE,
+  STATUS_LABEL,
+  STATUS_TONE,
+} from "./helpers";
 
 export const metadata: Metadata = { title: "Inventory" };
-
-type StockStatus = "out_of_stock" | "low_stock" | "in_stock";
-
-/**
- * Joined row shape from Supabase. PostgREST returns the embedded relation as
- * an object when the FK side is non-nullable, but its generated type can be
- * unioned with arrays — narrow it here for the .map() below.
- */
-type JoinedStockRow = {
-  on_hand: number | string;
-  inventory_items: {
-    id: string;
-    name: string;
-    unit: string;
-    low_stock_threshold: number | string;
-  };
-};
-
-function getStatus(row: StockRow): StockStatus {
-  if (row.on_hand === 0) return "out_of_stock";
-  if (row.on_hand <= row.low_stock_threshold) return "low_stock";
-  return "in_stock";
-}
-
-const STATUS_LABEL: Record<StockStatus, string> = {
-  out_of_stock: "OUT OF STOCK",
-  low_stock: "LOW STOCK",
-  in_stock: "IN STOCK",
-};
-
-const STATUS_TONE: Record<StockStatus, string> = {
-  out_of_stock: "bg-red-100 text-red-700",
-  low_stock: "bg-amber-100 text-amber-700",
-  in_stock: "bg-emerald-100 text-emerald-700",
-};
-
-const PROGRESS_TONE: Record<StockStatus, string> = {
-  out_of_stock: "bg-red-500",
-  low_stock: "bg-amber-500",
-  in_stock: "bg-emerald-500",
-};
 
 export default async function InventoryPage() {
   const supabase = await createClient();
 
   const { data, error } = await supabase
     .from("branch_inventory")
-    .select(
-      "on_hand, inventory_items(id, name, unit, low_stock_threshold)",
-    );
+    .select("on_hand, inventory_items(id, name, unit, low_stock_threshold)");
 
   if (error) {
     console.error("inventory fetch failed", error);
@@ -90,24 +55,24 @@ export default async function InventoryPage() {
       <header className="flex flex-col gap-1">
         <h1 className="text-2xl font-semibold tracking-tight">Stock levels</h1>
         <p className="text-foreground-muted text-sm">
-          Monitor on-hand quantities in real time and react before anything
-          runs out.
+          Monitor on-hand quantities in real time and react before anything runs
+          out.
         </p>
       </header>
 
       <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        <StatCard label="Items tracked" value={totalItems.toString()} />
-        <StatCard
+        <SummaryCard label="Items tracked" value={totalItems.toString()} />
+        <SummaryCard
           label="Low stock alerts"
           value={`${lowStockCount} item${lowStockCount === 1 ? "" : "s"}`}
           tone={lowStockCount > 0 ? "warning" : "neutral"}
         />
-        <StatCard
+        <SummaryCard
           label="Out of stock"
           value={`${outOfStockCount} item${outOfStockCount === 1 ? "" : "s"}`}
           tone={outOfStockCount > 0 ? "danger" : "neutral"}
         />
-        <StatCard label="Open purchase orders" value="—" />
+        <SummaryCard label="Open purchase orders" value="—" />
       </section>
 
       <section className="bg-surface flex flex-col gap-4 rounded-lg border border-border p-4">
@@ -173,36 +138,6 @@ export default async function InventoryPage() {
           </TableBody>
         </Table>
       </section>
-    </div>
-  );
-}
-
-type StatCardTone = "neutral" | "warning" | "danger";
-
-function StatCard({
-  label,
-  value,
-  tone = "neutral",
-}: {
-  label: string;
-  value: string;
-  tone?: StatCardTone;
-}) {
-  const valueTone =
-    tone === "danger"
-      ? "text-red-600"
-      : tone === "warning"
-        ? "text-amber-600"
-        : "text-foreground";
-
-  return (
-    <div className="bg-surface flex flex-col gap-1 rounded-lg border border-border p-4">
-      <span className="text-foreground-muted text-xs font-medium uppercase tracking-wide">
-        {label}
-      </span>
-      <span className={`text-2xl font-semibold tracking-tight ${valueTone}`}>
-        {value}
-      </span>
     </div>
   );
 }
