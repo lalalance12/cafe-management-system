@@ -1,6 +1,6 @@
 /**
- * Inventory Stock Levels route — data shapes narrowed for the branch_inventory
- * join query. Scoped to `/inventory`; not shared app-wide API types.
+ * Inventory route — data shapes for pages under `/inventory` (stock joins,
+ * purchase order display status). Not shared app-wide API types.
  */
 
 export type StockStatus = "out_of_stock" | "low_stock" | "in_stock";
@@ -20,3 +20,12 @@ export type JoinedStockRow = {
     low_stock_threshold: number | string;
   };
 };
+
+/** Purchase order row status plus derived `overdue` (display-only, not stored). */
+export type PurchaseOrderResolvedStatus =
+  | "draft"
+  | "submitted"
+  | "partial"
+  | "received"
+  | "cancelled"
+  | "overdue";

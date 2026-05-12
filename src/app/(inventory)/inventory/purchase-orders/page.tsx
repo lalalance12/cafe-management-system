@@ -23,69 +23,18 @@ import {
   type PurchaseOrderRow,
 } from "@/lib/mock/inventory";
 import SummaryCard from "../../components/SummaryCard";
+import {
+  formatPhpAmount,
+  PURCHASE_ORDER_STATUS_CLASSES,
+  PURCHASE_ORDER_STATUS_LABEL,
+  purchaseOrderLabel,
+  resolvePurchaseOrderStatus,
+} from "../helpers";
 import { PurchaseOrderActions } from "./purchase-order-actions";
 import { Button } from "@/components/ui/button";
 import { FilterIcon, PlusIcon } from "lucide-react";
 
 export const metadata: Metadata = { title: "Purchase orders" };
-
-const CURRENCY = new Intl.NumberFormat("en-PH", {
-  style: "currency",
-  currency: "PHP",
-  minimumFractionDigits: 2,
-});
-
-type ResolvedStatus =
-  | "draft"
-  | "submitted"
-  | "partial"
-  | "received"
-  | "cancelled"
-  | "overdue";
-
-/**
- * Derive a display-only "overdue" status when an in-flight PO has passed
- * its expected delivery date. The base `status` enum has no `overdue` value
- * because it's a function of time, not a stored state.
- */
-function resolveStatus(row: PurchaseOrderRow): ResolvedStatus {
-  if (
-    row.expected_delivery_date !== null &&
-    dayjs(row.expected_delivery_date).isBefore(dayjs(), "day") &&
-    (row.status === "submitted" || row.status === "partial")
-  ) {
-    return "overdue";
-  }
-  return row.status;
-}
-
-const STATUS_LABEL: Record<ResolvedStatus, string> = {
-  draft: "DRAFT",
-  submitted: "SUBMITTED",
-  partial: "PARTIAL",
-  received: "RECEIVED",
-  cancelled: "CANCELLED",
-  overdue: "OVERDUE",
-};
-
-const STATUS_CLASSES: Record<ResolvedStatus, string> = {
-  draft:
-    "border-amber-300 bg-amber-50 text-amber-700 dark:border-amber-700 dark:bg-amber-950 dark:text-amber-400",
-  submitted:
-    "border-sky-300 bg-sky-50 text-sky-700 dark:border-sky-700 dark:bg-sky-950 dark:text-sky-400",
-  partial:
-    "border-violet-300 bg-violet-50 text-violet-700 dark:border-violet-700 dark:bg-violet-950 dark:text-violet-400",
-  received:
-    "border-emerald-300 bg-emerald-50 text-emerald-700 dark:border-emerald-700 dark:bg-emerald-950 dark:text-emerald-400",
-  cancelled: "border-muted bg-muted text-muted-foreground",
-  overdue:
-    "border-red-300 bg-red-50 text-red-700 dark:border-red-700 dark:bg-red-950 dark:text-red-400",
-};
-
-/** Human-readable PO label derived from the row's UUID prefix. */
-function poLabel(id: string): string {
-  return `PO-${id.slice(0, 8).toUpperCase()}`;
-}
 
 export default async function PurchaseOrdersPage() {
   const supabase = await createClient();
@@ -151,7 +100,7 @@ export default async function PurchaseOrdersPage() {
 
       <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         <SummaryCard label="Active POs" value={activePOs.toString()} />
-        <SummaryCard label="Total value" value={CURRENCY.format(totalValue)} />
+        <SummaryCard label="Total value" value={formatPhpAmount(totalValue)} />
         <SummaryCard
           label="Pending delivery"
           value={pendingDelivery.toString()}
@@ -183,8 +132,8 @@ export default async function PurchaseOrdersPage() {
           </TableHeader>
           <TableBody>
             {rows.map((row) => {
-              const status = resolveStatus(row);
-              const label = poLabel(row.id);
+              const status = resolvePurchaseOrderStatus(row);
+              const label = purchaseOrderLabel(row.id);
               return (
                 <TableRow key={row.id}>
                   <TableCell className="font-medium">{label}</TableCell>
@@ -202,11 +151,14 @@ export default async function PurchaseOrdersPage() {
                       : "Pending"}
                   </TableCell>
                   <TableCell>
-                    {CURRENCY.format(Number(row.total_amount ?? 0))}
+                    {formatPhpAmount(Number(row.total_amount ?? 0))}
                   </TableCell>
                   <TableCell>
-                    <Badge variant="outline" className={STATUS_CLASSES[status]}>
-                      {STATUS_LABEL[status]}
+                    <Badge
+                      variant="outline"
+                      className={PURCHASE_ORDER_STATUS_CLASSES[status]}
+                    >
+                      {PURCHASE_ORDER_STATUS_LABEL[status]}
                     </Badge>
                   </TableCell>
                   <TableCell>
