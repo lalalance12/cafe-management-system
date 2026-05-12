@@ -45,7 +45,6 @@ export function formatPhpAmount(value: number): string {
 
 /**
  * Derive display-only `overdue` when an in-flight PO is past expected delivery.
- * Stored `status` has no `overdue` — it is time-derived.
  */
 export function resolvePurchaseOrderStatus(
   row: PurchaseOrderRow,
