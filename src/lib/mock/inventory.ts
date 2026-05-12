@@ -12,6 +12,7 @@ export type StockRow = {
   unit: string;
   on_hand: number;
   low_stock_threshold: number;
+  updated_at?: string | null;
 };
 
 export const MOCK_STOCK: StockRow[] = [
@@ -21,6 +22,7 @@ export const MOCK_STOCK: StockRow[] = [
     unit: "kg",
     on_hand: 4.2,
     low_stock_threshold: 5.0,
+    updated_at: "2026-01-01T00:00:00Z",
   },
   {
     id: "mock-2",
@@ -28,6 +30,7 @@ export const MOCK_STOCK: StockRow[] = [
     unit: "L",
     on_hand: 18.0,
     low_stock_threshold: 4.0,
+    updated_at: "2026-01-01T00:00:00Z",
   },
   {
     id: "mock-3",
@@ -35,6 +38,7 @@ export const MOCK_STOCK: StockRow[] = [
     unit: "L",
     on_hand: 0.0,
     low_stock_threshold: 3.0,
+    updated_at: "2026-01-01T00:00:00Z",
   },
   {
     id: "mock-4",
@@ -42,5 +46,6 @@ export const MOCK_STOCK: StockRow[] = [
     unit: "kg",
     on_hand: 45.0,
     low_stock_threshold: 10.0,
+    updated_at: "2026-01-01T00:00:00Z",
   },
 ];
