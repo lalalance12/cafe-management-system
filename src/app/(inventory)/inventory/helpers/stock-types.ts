@@ -12,6 +12,7 @@ export type StockStatus = "out_of_stock" | "low_stock" | "in_stock";
  */
 export type JoinedStockRow = {
   on_hand: number | string;
+  updated_at: string | null;
   inventory_items: {
     id: string;
     name: string;
