@@ -54,8 +54,28 @@ type AppSidebarProps = {
   nav: ReadonlyArray<NavItem>;
 };
 
+/** Picks the single nav href that should show active — longest prefix wins*/
+function getActiveNavHref(
+  pathname: string,
+  nav: ReadonlyArray<NavItem>,
+): string | null {
+  let best: NavItem | null = null;
+  for (const item of nav) {
+    const matches =
+      item.href === "/"
+        ? pathname === "/"
+        : pathname === item.href || pathname.startsWith(`${item.href}/`);
+    if (!matches) continue;
+    if (!best || item.href.length > best.href.length) {
+      best = item;
+    }
+  }
+  return best?.href ?? null;
+}
+
 export function AppSidebar({ nav }: AppSidebarProps) {
   const pathname = usePathname();
+  const activeHref = getActiveNavHref(pathname, nav);
 
   async function handleSignOut() {
     const supabase = createClient();
@@ -85,11 +105,7 @@ export function AppSidebar({ nav }: AppSidebarProps) {
             <SidebarMenu>
               {nav.map((item) => {
                 const Icon = item.icon ? NAV_ICON_MAP[item.icon] : null;
-                const isActive =
-                  item.href === "/"
-                    ? pathname === "/"
-                    : pathname === item.href ||
-                      pathname.startsWith(item.href + "/");
+                const isActive = activeHref === item.href;
                 return (
                   <SidebarMenuItem key={item.href}>
                     <SidebarMenuButton
