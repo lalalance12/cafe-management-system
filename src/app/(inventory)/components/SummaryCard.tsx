@@ -17,7 +17,7 @@ export default function SummaryCard({
         : "text-foreground";
 
   return (
-    <div className="bg-[#f9f9f9] dark:bg-[#1a1a1a] flex flex-col gap-1 rounded-lg border border-[rgba(0,0,0,0.1)] dark:border-[#D6D6D61F] p-4">
+    <div className="bg-card flex flex-col gap-1 rounded-lg border border-accent-foreground/5 p-4">
       <span className="text-foreground-muted text-xs font-medium uppercase tracking-wide">
         {label}
       </span>

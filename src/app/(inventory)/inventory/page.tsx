@@ -70,7 +70,7 @@ export default async function InventoryPage() {
         <SummaryCard label="Open purchase orders" value="—" />
       </section>
 
-      <section className="bg-[#f9f9f9] dark:bg-[#1a1a1a] flex flex-col gap-4 rounded-lg border border-[rgba(0,0,0,0.1)] dark:border-[#D6D6D61F] p-4">
+      <section className="bg-card flex flex-col gap-4 rounded-lg border border-accent-foreground/5 p-4">
         <div className="flex items-center justify-between">
           <h2 className="text-base font-semibold tracking-tight">
             All ingredients

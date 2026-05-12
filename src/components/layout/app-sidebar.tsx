@@ -71,12 +71,6 @@ export function AppSidebar({ nav }: AppSidebarProps) {
           <SidebarMenuItem>
             <SidebarMenuButton asChild>
               <Link href="/">
-                <Image
-                  src="/images/coffee.webp"
-                  alt="Logo"
-                  width={26}
-                  height={26}
-                />
                 <span className="text-sm font-semibold">
                   Cafe Management System
                 </span>
@@ -99,9 +93,13 @@ export function AppSidebar({ nav }: AppSidebarProps) {
                       pathname.startsWith(item.href + "/");
                 return (
                   <SidebarMenuItem key={item.href}>
-                    <SidebarMenuButton asChild isActive={isActive}>
+                    <SidebarMenuButton
+                      asChild
+                      isActive={isActive}
+                      className="text-gray-400 rounded-sm data-active:text-wood-400"
+                    >
                       <Link href={item.href}>
-                        {Icon ? <Icon className="size-5" /> : null}
+                        {Icon ? <Icon /> : null}
                         <span className="text-md">{item.label}</span>
                       </Link>
                     </SidebarMenuButton>
