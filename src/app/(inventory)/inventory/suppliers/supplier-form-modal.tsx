@@ -3,11 +3,11 @@
  */
 "use client";
 
-import { useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useQueryClient } from "@tanstack/react-query";
 import { Controller, useForm } from "react-hook-form";
 import { useRouter } from "next/navigation";
+import { toast } from "react-toastify";
 
 import { AppDialog } from "@/components/modals/app-dialog";
 import { Button } from "@/components/ui/button";
@@ -19,6 +19,10 @@ import {
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import {
+  supplierSaveErrorMessage,
+  supplierSaveSuccessMessage,
+} from "@/lib/supplier-feedback";
 import { selectSupplierForm, useInventoryUI } from "@/stores/inventory-ui";
 
 import { createSupplier, updateSupplier } from "./actions";
@@ -36,7 +40,6 @@ export function SupplierFormModal() {
   const closeSupplierForm = useInventoryUI((s) => s.closeSupplierForm);
 
   const isEditing = supplier !== null;
-  const [submitError, setSubmitError] = useState<string | null>(null);
 
   const form = useForm<SupplierFormValues>({
     resolver: zodResolver(supplierFormSchema),
@@ -44,24 +47,22 @@ export function SupplierFormModal() {
   });
 
   async function onSubmit(values: SupplierFormValues) {
-    setSubmitError(null);
-
     const result = isEditing
       ? await updateSupplier(supplier.id, values)
       : await createSupplier(values);
 
     if (result.error) {
-      setSubmitError(result.error);
+      toast.error(supplierSaveErrorMessage(result.error));
       return;
     }
 
+    toast.success(supplierSaveSuccessMessage(isEditing));
     await queryClient.invalidateQueries({ queryKey: suppliersQueryKey });
     router.refresh();
     handleClose();
   }
 
   function handleClose() {
-    setSubmitError(null);
     closeSupplierForm();
   }
 
@@ -214,12 +215,6 @@ export function SupplierFormModal() {
             )}
           />
         </FieldGroup>
-
-        {submitError && (
-          <p role="alert" className="text-sm text-destructive">
-            {submitError}
-          </p>
-        )}
       </form>
     </AppDialog>
   );

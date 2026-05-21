@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { AlertTriangle } from "lucide-react";
+import { toast } from "react-toastify";
 
 import { AppDialog } from "@/components/modals/app-dialog";
 import { Button } from "@/components/ui/button";
@@ -11,6 +12,12 @@ import {
   FieldLabel,
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
+import {
+  poActionErrorMessage,
+  poCancelledMessage,
+  poReceivedMessage,
+  poSubmittedMessage,
+} from "@/lib/purchase-order-feedback";
 import { selectPOStatusDialog, useInventoryUI } from "@/stores/inventory-ui";
 
 import {
@@ -91,7 +98,16 @@ export function POStatusDialog() {
 
     if (result.error) {
       setError(result.error);
+      toast.error(poActionErrorMessage(result.error));
       return;
+    }
+
+    if (action === "submit") {
+      toast.success(poSubmittedMessage(Boolean(expectedDeliveryDate)));
+    } else if (action === "receive") {
+      toast.success(poReceivedMessage());
+    } else if (action === "cancel") {
+      toast.success(poCancelledMessage());
     }
 
     await queryClient.invalidateQueries({ queryKey: purchaseOrdersQueryKey });

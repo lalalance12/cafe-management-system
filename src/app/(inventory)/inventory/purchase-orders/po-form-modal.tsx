@@ -5,6 +5,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Trash2 } from "lucide-react";
 import { useFieldArray, useForm } from "react-hook-form";
+import { toast } from "react-toastify";
 
 import { AppDialog } from "@/components/modals/app-dialog";
 import { Button } from "@/components/ui/button";
@@ -16,6 +17,12 @@ import {
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import {
+  poActionErrorMessage,
+  poDraftSavedMessage,
+  poFormValidationMessage,
+  poSubmittedMessage,
+} from "@/lib/purchase-order-feedback";
 import { cn } from "@/lib/utils";
 import { selectPOForm, useInventoryUI } from "@/stores/inventory-ui";
 
@@ -44,7 +51,6 @@ export function POFormModal() {
   const { open } = useInventoryUI(selectPOForm);
   const closePOForm = useInventoryUI((s) => s.closePOForm);
 
-  const [submitError, setSubmitError] = useState<string | null>(null);
   const [itemTab, setItemTab] = useState<ItemPickerTab>("low_stock");
 
   const form = useForm<POFormValues>({
@@ -121,23 +127,32 @@ export function POFormModal() {
   }
 
   async function persistPO(submitAfterCreate: boolean) {
-    setSubmitError(null);
     const valid = await form.trigger();
-    if (!valid) return;
+    if (!valid) {
+      toast.error(poFormValidationMessage());
+      return;
+    }
 
     const values = form.getValues();
     const createResult = await createPurchaseOrder(values);
     if (createResult.error || !createResult.id) {
-      setSubmitError(createResult.error ?? "Failed to create purchase order.");
+      toast.error(
+        poActionErrorMessage(
+          createResult.error ?? "Failed to create purchase order.",
+        ),
+      );
       return;
     }
 
     if (submitAfterCreate) {
       const submitResult = await submitPurchaseOrder(createResult.id);
       if (submitResult.error) {
-        setSubmitError(submitResult.error);
+        toast.error(poActionErrorMessage(submitResult.error));
         return;
       }
+      toast.success(poSubmittedMessage(false));
+    } else {
+      toast.success(poDraftSavedMessage());
     }
 
     await queryClient.invalidateQueries({ queryKey: purchaseOrdersQueryKey });
@@ -145,7 +160,6 @@ export function POFormModal() {
   }
 
   function handleClose() {
-    setSubmitError(null);
     closePOForm();
   }
 
@@ -396,11 +410,6 @@ export function POFormModal() {
           </span>
         </div>
 
-        {submitError ? (
-          <p role="alert" className="text-sm text-destructive">
-            {submitError}
-          </p>
-        ) : null}
       </div>
     </AppDialog>
   );
