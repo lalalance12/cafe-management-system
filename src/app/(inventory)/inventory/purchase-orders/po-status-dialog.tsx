@@ -105,6 +105,7 @@ export function POStatusDialog() {
 
   const dialogSize =
     action === "receive" ? ("medium" as const) : ("compact" as const);
+  const dialogFitContent = action !== "receive";
 
   const header =
     action === "submit" ? (
@@ -144,6 +145,7 @@ export function POStatusDialog() {
       open={isOpen}
       onClose={handleClose}
       size={dialogSize}
+      fitContent={dialogFitContent}
       header={header}
       description={description}
       footer={

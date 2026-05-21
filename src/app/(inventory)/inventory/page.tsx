@@ -40,8 +40,8 @@ export default async function InventoryPage() {
   const outOfStockCount = rows.filter((r) => r.on_hand === 0).length;
 
   return (
-    <div className="flex flex-col gap-8">
-      <header className="flex flex-col gap-1">
+    <div className="flex min-h-0 flex-1 flex-col gap-6">
+      <header className="flex shrink-0 flex-col gap-1">
         <h1 className="text-2xl font-semibold tracking-tight">Stock levels</h1>
         <p className="text-foreground-muted text-sm">
           Monitor on-hand quantities in real time and react before anything runs
@@ -49,7 +49,7 @@ export default async function InventoryPage() {
         </p>
       </header>
 
-      <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+      <section className="grid shrink-0 gap-4 sm:grid-cols-2 xl:grid-cols-4">
         <SummaryCard
           label="Items tracked"
           value={totalItems.toString()}

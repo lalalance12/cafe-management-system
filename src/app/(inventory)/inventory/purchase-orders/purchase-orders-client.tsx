@@ -11,7 +11,14 @@ import {
   useReactTable,
   type ColumnFiltersState,
 } from "@tanstack/react-table";
-import { CircleDollarSign, FilterIcon, PlusIcon, Truck, ClipboardList } from "lucide-react";
+import {
+  CircleDollarSign,
+  ClipboardList,
+  FilterIcon,
+  PlusIcon,
+  Search,
+  Truck,
+} from "lucide-react";
 
 import { DataTablePagination } from "@/components/data-table/data-table-pagination";
 import { Button } from "@/components/ui/button";
@@ -21,6 +28,7 @@ import {
   DropdownMenuContent,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { Input } from "@/components/ui/input";
 import {
   Table,
   TableBody,
@@ -69,6 +77,7 @@ export function PurchaseOrdersClient({
   const poForm = useInventoryUI(selectPOForm);
   const poStatusDialog = useInventoryUI(selectPOStatusDialog);
 
+  const [globalFilter, setGlobalFilter] = useState("");
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("all");
 
   const {
@@ -106,7 +115,13 @@ export function PurchaseOrdersClient({
   const table = useReactTable({
     data: rows,
     columns: purchaseOrderColumns,
-    state: { columnFilters },
+    state: { columnFilters, globalFilter },
+    onGlobalFilterChange: setGlobalFilter,
+    globalFilterFn: (row, _columnId, filterValue) => {
+      const query = String(filterValue).trim().toLowerCase();
+      if (!query) return true;
+      return (row.original.suppliers?.name ?? "").toLowerCase().includes(query);
+    },
     getCoreRowModel: getCoreRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
     getSortedRowModel: getSortedRowModel(),
@@ -142,12 +157,23 @@ export function PurchaseOrdersClient({
         />
       </section>
 
-      <div className="flex shrink-0 flex-wrap items-center justify-end gap-2">
+      <div className="flex shrink-0 flex-wrap items-center gap-2">
+        <div className="relative min-w-48 flex-1 sm:max-w-xs">
+          <Search className="text-foreground-muted pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2" />
+          <Input
+            value={globalFilter}
+            onChange={(e) => setGlobalFilter(e.target.value)}
+            placeholder="Search by supplier…"
+            className="rounded-sm ps-9"
+            aria-label="Search by supplier"
+          />
+        </div>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="outline" className="rounded-sm">
               <FilterIcon />
-              Filter
+              {STATUS_FILTER_OPTIONS.find((o) => o.value === statusFilter)
+                ?.label ?? "All"}
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
@@ -164,7 +190,7 @@ export function PurchaseOrdersClient({
         </DropdownMenu>
         <Button
           variant="wood"
-          className="rounded-sm"
+          className="ml-auto rounded-sm"
           onClick={() => openPOForm()}
         >
           <PlusIcon />

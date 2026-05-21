@@ -23,10 +23,12 @@ export default async function PurchaseOrdersPage() {
   }
 
   const rows: PORow[] =
-    data && data.length > 0 ? (data as unknown as PORow[]) : MOCK_PURCHASE_ORDERS;
+    data && data.length > 0
+      ? (data as unknown as PORow[])
+      : MOCK_PURCHASE_ORDERS;
 
   return (
-    <div className="flex min-h-0 flex-1 flex-col gap-8">
+    <div className="flex min-h-0 flex-1 flex-col gap-6">
       <header className="flex flex-col gap-1">
         <h1 className="text-2xl font-semibold tracking-tight">
           Purchase orders

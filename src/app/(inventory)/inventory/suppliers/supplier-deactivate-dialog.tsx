@@ -61,6 +61,7 @@ export function SupplierDeactivateDialog() {
       open={isOpen}
       onClose={handleClose}
       size="compact"
+      fitContent
       header={
         <span className="flex items-center gap-2">
           <AlertTriangle

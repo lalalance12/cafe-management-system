@@ -14,10 +14,16 @@ import {
   useReactTable,
   type ColumnFiltersState,
 } from "@tanstack/react-table";
-import { Search, UserPlus } from "lucide-react";
+import { FilterIcon, Search, UserPlus } from "lucide-react";
 
 import { DataTablePagination } from "@/components/data-table/data-table-pagination";
 import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuCheckboxItem,
+  DropdownMenuContent,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
 import {
   Table,
@@ -88,19 +94,7 @@ export function SuppliersClient({ initialRows }: SuppliersClientProps) {
     globalFilterFn: (row, _columnId, filterValue) => {
       const query = String(filterValue).trim().toLowerCase();
       if (!query) return true;
-
-      const supplier = row.original;
-      const haystack = [
-        supplier.name,
-        supplier.contact_person,
-        supplier.phone,
-        supplier.email,
-      ]
-        .filter(Boolean)
-        .join(" ")
-        .toLowerCase();
-
-      return haystack.includes(query);
+      return row.original.name.toLowerCase().includes(query);
     },
     getCoreRowModel: getCoreRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
@@ -112,11 +106,13 @@ export function SuppliersClient({ initialRows }: SuppliersClientProps) {
   });
 
   const filteredCount = table.getFilteredRowModel().rows.length;
+  const activeLabel =
+    STATUS_FILTER_OPTIONS.find((o) => o.value === statusFilter)?.label ?? "All";
 
   return (
     <div className="flex min-h-0 flex-1 flex-col gap-4">
-      <div className="flex shrink-0 flex-wrap items-center justify-between gap-3">
-        <div className="relative min-w-[12rem] flex-1 sm:max-w-xs">
+      <div className="flex shrink-0 flex-wrap items-center gap-2">
+        <div className="relative min-w-48 flex-1 sm:max-w-xs">
           <Search className="text-foreground-muted pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2" />
           <Input
             value={globalFilter}
@@ -126,9 +122,28 @@ export function SuppliersClient({ initialRows }: SuppliersClientProps) {
             aria-label="Search suppliers"
           />
         </div>
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="outline" className="rounded-sm">
+              <FilterIcon />
+              {activeLabel}
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end">
+            {STATUS_FILTER_OPTIONS.map((option) => (
+              <DropdownMenuCheckboxItem
+                key={option.value}
+                checked={statusFilter === option.value}
+                onCheckedChange={() => setStatusFilter(option.value)}
+              >
+                {option.label}
+              </DropdownMenuCheckboxItem>
+            ))}
+          </DropdownMenuContent>
+        </DropdownMenu>
         <Button
           variant="wood"
-          className="rounded-sm"
+          className="ml-auto rounded-sm"
           onClick={() => openSupplierForm()}
         >
           <UserPlus />
@@ -137,30 +152,14 @@ export function SuppliersClient({ initialRows }: SuppliersClientProps) {
       </div>
 
       <section className="bg-card flex min-h-0 flex-1 flex-col overflow-hidden rounded-lg border border-accent-foreground/5 p-4">
-        <div className="flex shrink-0 flex-wrap items-center justify-between gap-3 pb-4">
-          <div className="flex items-center gap-2">
-            <h2 className="text-base font-semibold tracking-tight">
-              All suppliers
-            </h2>
-            <span className="text-foreground-muted text-xs">
-              {filteredCount} total
-              {isFetching ? " · Updating…" : ""}
-            </span>
-          </div>
-          <div className="flex flex-wrap gap-1">
-            {STATUS_FILTER_OPTIONS.map((option) => (
-              <Button
-                key={option.value}
-                type="button"
-                size="sm"
-                variant={statusFilter === option.value ? "wood" : "outline"}
-                className="rounded-sm"
-                onClick={() => setStatusFilter(option.value)}
-              >
-                {option.label}
-              </Button>
-            ))}
-          </div>
+        <div className="flex shrink-0 items-center gap-2 pb-4">
+          <h2 className="text-base font-semibold tracking-tight">
+            All suppliers
+          </h2>
+          <span className="text-foreground-muted text-xs">
+            {filteredCount} total
+            {isFetching ? " · Updating…" : ""}
+          </span>
         </div>
 
         {error ? (

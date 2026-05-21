@@ -23,6 +23,15 @@ const sizeClassName: Record<AppDialogSize, string> = {
   full: "w-full max-w-[calc(100vw-2rem)] sm:max-w-[min(90vw,1763px)] h-[min(90dvh,900px)] sm:rounded-lg",
 };
 
+/** Max-height only — lets the dialog shrink to its content for short dialogs. */
+const fitSizeClassName: Record<AppDialogSize, string> = {
+  compact: "sm:max-w-sm max-h-[min(70dvh,420px)]",
+  medium: "sm:max-w-lg max-h-[min(80dvh,560px)]",
+  large: "sm:max-w-3xl max-h-[min(85dvh,680px)]",
+  xlarge: "sm:max-w-6xl max-h-[min(85dvh,800px)]",
+  full: "w-full max-w-[calc(100vw-2rem)] sm:max-w-[min(90vw,1763px)] max-h-[min(90dvh,900px)] sm:rounded-lg",
+};
+
 type AppDialogProps = {
   open: boolean;
   onClose: () => void;
@@ -31,6 +40,8 @@ type AppDialogProps = {
   children: ReactNode;
   footer?: ReactNode;
   size?: AppDialogSize;
+  /** When true the dialog shrinks to fit its content instead of using a fixed height. */
+  fitContent?: boolean;
   contentClassName?: string;
   bodyClassName?: string;
 };
@@ -43,6 +54,7 @@ export function AppDialog({
   children,
   footer,
   size = "compact",
+  fitContent = false,
   contentClassName,
   bodyClassName,
 }: AppDialogProps) {
@@ -55,8 +67,8 @@ export function AppDialog({
     >
       <DialogContent
         className={cn(
-          "grid-rows-[auto_minmax(0,1fr)_auto]",
-          sizeClassName[size],
+          !fitContent && "grid-rows-[auto_minmax(0,1fr)_auto]",
+          fitContent ? fitSizeClassName[size] : sizeClassName[size],
           contentClassName,
         )}
         {...(!description ? { "aria-describedby": undefined } : {})}
@@ -67,9 +79,13 @@ export function AppDialog({
             <DialogDescription>{description}</DialogDescription>
           ) : null}
         </DialogHeader>
-        <ScrollArea className="h-full min-h-0">
-          <div className={cn("min-h-0", bodyClassName)}>{children}</div>
-        </ScrollArea>
+        {fitContent ? (
+          <div className={cn("overflow-y-auto", bodyClassName)}>{children}</div>
+        ) : (
+          <ScrollArea className="h-full min-h-0">
+            <div className={cn("min-h-0", bodyClassName)}>{children}</div>
+          </ScrollArea>
+        )}
         {footer ? <DialogFooter>{footer}</DialogFooter> : null}
       </DialogContent>
     </Dialog>

@@ -10,10 +10,16 @@ import {
   useReactTable,
   type ColumnFiltersState,
 } from "@tanstack/react-table";
-import { Search } from "lucide-react";
+import { FilterIcon, Search } from "lucide-react";
 
 import { DataTablePagination } from "@/components/data-table/data-table-pagination";
 import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuCheckboxItem,
+  DropdownMenuContent,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
 import {
   Table,
@@ -75,10 +81,14 @@ export function StockTableClient({ rows }: StockTableClientProps) {
 
   const filteredCount = table.getFilteredRowModel().rows.length;
 
+  const activeLabel =
+    STATUS_FILTER_OPTIONS.find((o) => o.value === statusFilter)?.label ?? "All";
+
   return (
-    <section className="bg-card flex min-h-0 flex-col overflow-hidden rounded-lg border border-accent-foreground/5 p-4">
-      <div className="flex shrink-0 flex-wrap items-center justify-between gap-3 pb-4">
-        <div className="relative min-w-[12rem] flex-1 sm:max-w-xs">
+    <div className="flex min-h-0 flex-1 flex-col gap-3">
+      {/* Toolbar above card */}
+      <div className="flex shrink-0 items-center gap-2">
+        <div className="relative min-w-48 flex-1 sm:max-w-xs">
           <Search className="text-foreground-muted pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2" />
           <Input
             value={globalFilter}
@@ -88,24 +98,29 @@ export function StockTableClient({ rows }: StockTableClientProps) {
             aria-label="Search ingredients"
           />
         </div>
-        <div className="flex flex-wrap gap-1">
-          {STATUS_FILTER_OPTIONS.map((option) => (
-            <Button
-              key={option.value}
-              type="button"
-              size="sm"
-              variant={statusFilter === option.value ? "wood" : "outline"}
-              className="rounded-sm"
-              onClick={() => setStatusFilter(option.value)}
-            >
-              {option.label}
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="outline" className="rounded-sm">
+              <FilterIcon />
+              {activeLabel}
             </Button>
-          ))}
-        </div>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end">
+            {STATUS_FILTER_OPTIONS.map((option) => (
+              <DropdownMenuCheckboxItem
+                key={option.value}
+                checked={statusFilter === option.value}
+                onCheckedChange={() => setStatusFilter(option.value)}
+              >
+                {option.label}
+              </DropdownMenuCheckboxItem>
+            ))}
+          </DropdownMenuContent>
+        </DropdownMenu>
       </div>
 
-      <div className="flex shrink-0 items-center justify-between gap-3 pb-4">
-        <div className="flex items-center gap-2">
+      <section className="bg-card flex min-h-0 flex-1 flex-col overflow-hidden rounded-lg border border-accent-foreground/5 p-4">
+        <div className="flex shrink-0 items-center gap-2 pb-4">
           <h2 className="text-base font-semibold tracking-tight">
             All ingredients
           </h2>
@@ -113,58 +128,58 @@ export function StockTableClient({ rows }: StockTableClientProps) {
             {filteredCount} total
           </span>
         </div>
-      </div>
 
-      {filteredCount === 0 ? (
-        <p className="text-foreground-muted flex-1 py-8 text-center text-sm">
-          No ingredients match your filters.
-        </p>
-      ) : (
-        <div className="flex min-h-0 flex-1 flex-col gap-0">
-          <div className="min-h-0 flex-1 overflow-auto">
-            <Table>
-              <TableHeader>
-                {table.getHeaderGroups().map((headerGroup) => (
-                  <TableRow key={headerGroup.id}>
-                    {headerGroup.headers.map((header) => (
-                      <TableHead
-                        key={header.id}
-                        className={
-                          header.column.id === "stock_level"
-                            ? "w-[28%]"
-                            : undefined
-                        }
-                      >
-                        {header.isPlaceholder
-                          ? null
-                          : flexRender(
-                              header.column.columnDef.header,
-                              header.getContext(),
-                            )}
-                      </TableHead>
-                    ))}
-                  </TableRow>
-                ))}
-              </TableHeader>
-              <TableBody>
-                {table.getRowModel().rows.map((row) => (
-                  <TableRow key={row.id}>
-                    {row.getVisibleCells().map((cell) => (
-                      <TableCell key={cell.id}>
-                        {flexRender(
-                          cell.column.columnDef.cell,
-                          cell.getContext(),
-                        )}
-                      </TableCell>
-                    ))}
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
+        {filteredCount === 0 ? (
+          <p className="text-foreground-muted flex-1 py-8 text-center text-sm">
+            No ingredients match your filters.
+          </p>
+        ) : (
+          <div className="flex min-h-0 flex-1 flex-col gap-0">
+            <div className="min-h-0 flex-1 overflow-auto">
+              <Table>
+                <TableHeader>
+                  {table.getHeaderGroups().map((headerGroup) => (
+                    <TableRow key={headerGroup.id}>
+                      {headerGroup.headers.map((header) => (
+                        <TableHead
+                          key={header.id}
+                          className={
+                            header.column.id === "stock_level"
+                              ? "w-[28%]"
+                              : undefined
+                          }
+                        >
+                          {header.isPlaceholder
+                            ? null
+                            : flexRender(
+                                header.column.columnDef.header,
+                                header.getContext(),
+                              )}
+                        </TableHead>
+                      ))}
+                    </TableRow>
+                  ))}
+                </TableHeader>
+                <TableBody>
+                  {table.getRowModel().rows.map((row) => (
+                    <TableRow key={row.id}>
+                      {row.getVisibleCells().map((cell) => (
+                        <TableCell key={cell.id}>
+                          {flexRender(
+                            cell.column.columnDef.cell,
+                            cell.getContext(),
+                          )}
+                        </TableCell>
+                      ))}
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
+            <DataTablePagination table={table} entityLabel="items" />
           </div>
-          <DataTablePagination table={table} entityLabel="items" />
-        </div>
-      )}
-    </section>
+        )}
+      </section>
+    </div>
   );
 }

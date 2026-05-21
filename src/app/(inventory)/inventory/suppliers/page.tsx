@@ -26,7 +26,7 @@ export default async function SuppliersPage() {
   const activeVendors = rows.filter((r) => r.is_active).length;
 
   return (
-    <div className="flex min-h-0 flex-1 flex-col gap-8">
+    <div className="flex min-h-0 flex-1 flex-col gap-6">
       <header className="flex flex-col gap-1">
         <h1 className="text-2xl font-semibold tracking-tight">
           Suppliers directory
@@ -36,7 +36,7 @@ export default async function SuppliersPage() {
         </p>
       </header>
 
-      <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+      <section className="grid shrink-0 gap-4 sm:grid-cols-2 xl:grid-cols-4">
         <SummaryCard
           label="Total vendors"
           value={totalVendors.toString()}

@@ -90,7 +90,7 @@ export function AppSidebar({ nav }: AppSidebarProps) {
           <SidebarMenuItem>
             <SidebarMenuButton asChild>
               <Link href="/">
-                <span className="text-sm font-semibold">
+                <span className="text-sm text-wood-500 font-bold">
                   Cafe Management System
                 </span>
               </Link>
