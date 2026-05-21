@@ -10,22 +10,30 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { useInventoryUI } from "@/stores/inventory-ui";
+
+import type { PORow } from "./types";
 
 type PurchaseOrderActionsProps = {
-  purchaseOrderId: string;
+  purchaseOrder: PORow;
   poLabel: string;
 };
 
-/**
- * Three-dot actions menu for a single purchase order row.
- *
- * Lives in its own client component so the page can stay a Server
- * Component.
- */
 export function PurchaseOrderActions({
-  purchaseOrderId,
+  purchaseOrder,
   poLabel,
 }: PurchaseOrderActionsProps) {
+  const openPODetail = useInventoryUI((s) => s.openPODetail);
+  const openPOStatusDialog = useInventoryUI((s) => s.openPOStatusDialog);
+
+  const canSubmit = purchaseOrder.status === "draft";
+  const canReceive =
+    purchaseOrder.status === "submitted" ||
+    purchaseOrder.status === "partial";
+  const canCancel =
+    purchaseOrder.status === "draft" ||
+    purchaseOrder.status === "submitted";
+
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -39,13 +47,28 @@ export function PurchaseOrderActions({
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
         <DropdownMenuItem
-          onClick={() => console.log("View purchase order", purchaseOrderId)}
+          onClick={() => openPODetail(purchaseOrder.id)}
         >
           View details
         </DropdownMenuItem>
         <DropdownMenuSeparator />
-        <DropdownMenuItem disabled>Mark as received</DropdownMenuItem>
-        <DropdownMenuItem disabled className="text-destructive">
+        <DropdownMenuItem
+          disabled={!canSubmit}
+          onClick={() => openPOStatusDialog(purchaseOrder.id, "submit")}
+        >
+          Submit order
+        </DropdownMenuItem>
+        <DropdownMenuItem
+          disabled={!canReceive}
+          onClick={() => openPOStatusDialog(purchaseOrder.id, "receive")}
+        >
+          Mark as received
+        </DropdownMenuItem>
+        <DropdownMenuItem
+          disabled={!canCancel}
+          className="text-destructive"
+          onClick={() => openPOStatusDialog(purchaseOrder.id, "cancel")}
+        >
           Cancel order
         </DropdownMenuItem>
       </DropdownMenuContent>
