@@ -6,6 +6,8 @@ import {
 } from "next/font/google";
 
 import "./globals.css";
+import { QueryProvider } from "@/components/providers/query-provider";
+import { ToastProvider } from "@/components/providers/toast-provider";
 import { ThemeProvider } from "@/components/theme-provider";
 import { TooltipProvider } from "@/components/ui/tooltip";
 
@@ -47,11 +49,15 @@ export default function RootLayout({
       <body className="min-h-full bg-background text-foreground">
         <ThemeProvider
           attribute="class"
-          defaultTheme="system"
-          enableSystem
+          defaultTheme="light"
+          forcedTheme="light"
           disableTransitionOnChange
         >
-          <TooltipProvider>{children}</TooltipProvider>
+          <QueryProvider>
+            <ToastProvider>
+              <TooltipProvider>{children}</TooltipProvider>
+            </ToastProvider>
+          </QueryProvider>
         </ThemeProvider>
       </body>
     </html>

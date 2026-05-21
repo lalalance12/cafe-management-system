@@ -1,10 +1,8 @@
 "use client";
 
-import * as React from "react";
-import { useSyncExternalStore, type ReactNode } from "react";
+import type { ReactNode } from "react";
 import Link from "next/link";
-import { LogOut, Moon, Settings, Sun, User } from "lucide-react";
-import { useTheme } from "next-themes";
+import { LogOut, Settings, User } from "lucide-react";
 
 import { createClient } from "@/lib/supabase/client";
 import { SidebarTrigger } from "@/components/ui/sidebar";
@@ -19,51 +17,6 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-
-function noopSubscribe() {
-  return () => {};
-}
-
-/** True only after browser hydration — avoids SSR/client mismatch without useEffect. */
-function useIsClientMounted() {
-  return useSyncExternalStore(
-    noopSubscribe,
-    () => true,
-    () => false,
-  );
-}
-
-function ThemeToggle() {
-  const isMounted = useIsClientMounted();
-  const { setTheme } = useTheme();
-
-  if (!isMounted) {
-    return <Button variant="outline" size="icon" disabled aria-hidden />;
-  }
-
-  return (
-    <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        <Button variant="outline" size="icon" className="rounded-sm">
-          <Sun className="h-[1.2rem] w-[1.2rem] scale-100 rotate-0 transition-all dark:scale-0 dark:-rotate-90" />
-          <Moon className="absolute h-[1.2rem] w-[1.2rem] scale-0 rotate-90 transition-all dark:scale-100 dark:rotate-0" />
-          <span className="sr-only">Toggle theme</span>
-        </Button>
-      </DropdownMenuTrigger>
-      <DropdownMenuContent align="end">
-        <DropdownMenuItem onClick={() => setTheme("light")}>
-          Light
-        </DropdownMenuItem>
-        <DropdownMenuItem onClick={() => setTheme("dark")}>
-          Dark
-        </DropdownMenuItem>
-        <DropdownMenuItem onClick={() => setTheme("system")}>
-          System
-        </DropdownMenuItem>
-      </DropdownMenuContent>
-    </DropdownMenu>
-  );
-}
 
 type AppNavbarProps = {
   actions?: ReactNode;
@@ -84,7 +37,6 @@ export function AppNavbar({ actions }: AppNavbarProps) {
 
       <div className="flex items-center gap-3">
         {actions}
-        <ThemeToggle />
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="ghost" size="icon" className="rounded-sm">

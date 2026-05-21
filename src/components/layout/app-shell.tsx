@@ -41,9 +41,9 @@ export async function AppShell({
   return (
     <SidebarProvider defaultOpen={defaultOpen}>
       <AppSidebar eyebrow={eyebrow} title={title} nav={nav} />
-      <main className="flex w-full min-h-dvh flex-col">
+      <main className="flex h-dvh w-full flex-col overflow-hidden">
         <AppNavbar actions={actions} />
-        <div className="flex-1 px-6 py-8">{children}</div>
+        <div className="flex min-h-0 flex-1 flex-col overflow-hidden px-6 py-8">{children}</div>
       </main>
     </SidebarProvider>
   );

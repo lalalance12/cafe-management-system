@@ -1,18 +1,12 @@
 import type { Metadata } from "next";
+import { AlertTriangle, Boxes, PackageX, Truck } from "lucide-react";
 
 import { createClient } from "@/lib/supabase/server";
 import { MOCK_STOCK, type StockRow } from "@/lib/mock/inventory";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
+
 import SummaryCard from "../components/SummaryCard";
 import type { JoinedStockRow } from "./helpers";
-import { getStatus, PROGRESS_TONE, STATUS_LABEL, STATUS_TONE } from "./helpers";
+import { StockTableClient } from "./stock-table-client";
 
 export const metadata: Metadata = { title: "Inventory" };
 
@@ -46,8 +40,8 @@ export default async function InventoryPage() {
   const outOfStockCount = rows.filter((r) => r.on_hand === 0).length;
 
   return (
-    <div className="flex flex-col gap-8">
-      <header className="flex flex-col gap-1">
+    <div className="flex min-h-0 flex-1 flex-col gap-6">
+      <header className="flex shrink-0 flex-col gap-1">
         <h1 className="text-2xl font-semibold tracking-tight">Stock levels</h1>
         <p className="text-foreground-muted text-sm">
           Monitor on-hand quantities in real time and react before anything runs
@@ -55,84 +49,34 @@ export default async function InventoryPage() {
         </p>
       </header>
 
-      <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        <SummaryCard label="Items tracked" value={totalItems.toString()} />
+      <section className="grid shrink-0 gap-4 sm:grid-cols-2 xl:grid-cols-4">
+        <SummaryCard
+          label="Items tracked"
+          value={totalItems.toString()}
+          color="green"
+          icon={Boxes}
+        />
         <SummaryCard
           label="Low stock alerts"
           value={`${lowStockCount} item${lowStockCount === 1 ? "" : "s"}`}
-          tone={lowStockCount > 0 ? "warning" : "neutral"}
+          color={lowStockCount > 0 ? "amber" : "green"}
+          icon={AlertTriangle}
         />
         <SummaryCard
           label="Out of stock"
           value={`${outOfStockCount} item${outOfStockCount === 1 ? "" : "s"}`}
-          tone={outOfStockCount > 0 ? "danger" : "neutral"}
+          color={outOfStockCount > 0 ? "red" : "green"}
+          icon={PackageX}
         />
-        <SummaryCard label="Open purchase orders" value="—" />
+        <SummaryCard
+          label="Open purchase orders"
+          value="—"
+          color="sky"
+          icon={Truck}
+        />
       </section>
 
-      <section className="bg-card flex flex-col gap-4 rounded-lg border border-accent-foreground/5 p-4">
-        <div className="flex items-center justify-between">
-          <h2 className="text-base font-semibold tracking-tight">
-            All ingredients
-          </h2>
-          <span className="text-foreground-muted text-xs">
-            {totalItems} total
-          </span>
-        </div>
-
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Item</TableHead>
-              <TableHead className="w-[28%]">Stock level</TableHead>
-              <TableHead>Unit</TableHead>
-              <TableHead>Reorder at</TableHead>
-              <TableHead>Status</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {rows.map((row) => {
-              const status = getStatus(row);
-              const max = Math.max(row.low_stock_threshold * 5, row.on_hand);
-              const pct =
-                max > 0 ? Math.min((row.on_hand / max) * 100, 100) : 0;
-
-              return (
-                <TableRow key={row.id}>
-                  <TableCell className="font-medium">{row.name}</TableCell>
-                  <TableCell>
-                    <div className="flex flex-col gap-1">
-                      <div className="flex justify-between text-xs">
-                        <span>
-                          {row.on_hand.toFixed(1)} / {max.toFixed(1)}
-                        </span>
-                        <span className="text-foreground-muted">
-                          {pct.toFixed(0)}%
-                        </span>
-                      </div>
-                      <div className="h-1.5 w-full overflow-hidden rounded-full bg-muted">
-                        <div
-                          className={`h-full rounded-full ${PROGRESS_TONE[status]}`}
-                          style={{ width: `${pct}%` }}
-                        />
-                      </div>
-                    </div>
-                  </TableCell>
-                  <TableCell>{row.unit}</TableCell>
-                  <TableCell>{row.low_stock_threshold.toFixed(1)}</TableCell>
-                  <TableCell>
-                    <span
-                      className={`inline-flex rounded-full px-2 py-0.5 text-xs font-medium ${STATUS_TONE[status]}`}
-                    >
-                      {STATUS_LABEL[status]}
-                    </span>
-                  </TableCell>
-                </TableRow>
-              );
-            })}
-          </TableBody>
-        </Table>
-      </section>
+      <StockTableClient rows={rows} />
     </div>
   );
 }

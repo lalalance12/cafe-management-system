@@ -3,14 +3,10 @@ import { redirect } from "next/navigation";
 
 import { createClient } from "@/lib/supabase/server";
 import { AppShell, type NavItem } from "@/components/layout/app-shell";
+import { LowStockBell } from "@/app/(inventory)/components/low-stock-bell";
 
 const NAV: ReadonlyArray<NavItem> = [
   { href: "/inventory", label: "Stock levels", icon: "package" },
-  {
-    href: "/inventory/alerts",
-    label: "Low stock alerts",
-    icon: "triangleAlert",
-  },
   { href: "/inventory/suppliers", label: "Suppliers", icon: "truck" },
   {
     href: "/inventory/purchase-orders",
@@ -32,7 +28,12 @@ export default async function InventoryLayout({
   }
 
   return (
-    <AppShell eyebrow="Back of house" title="Inventory" nav={NAV}>
+    <AppShell
+      eyebrow="Back of house"
+      title="Inventory"
+      nav={NAV}
+      actions={<LowStockBell />}
+    >
       {children}
     </AppShell>
   );
