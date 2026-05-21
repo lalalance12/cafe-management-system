@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { Building2, UserCheck } from "lucide-react";
 
 import { createClient } from "@/lib/supabase/server";
 import SummaryCard from "../../components/SummaryCard";
@@ -36,11 +37,17 @@ export default async function SuppliersPage() {
       </header>
 
       <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        <SummaryCard label="Total vendors" value={totalVendors.toString()} />
+        <SummaryCard
+          label="Total vendors"
+          value={totalVendors.toString()}
+          color="sky"
+          icon={Building2}
+        />
         <SummaryCard
           label="Active vendors"
           value={activeVendors.toString()}
-          tone={activeVendors === 0 ? "danger" : "neutral"}
+          color={activeVendors === 0 ? "red" : "green"}
+          icon={UserCheck}
         />
       </section>
 

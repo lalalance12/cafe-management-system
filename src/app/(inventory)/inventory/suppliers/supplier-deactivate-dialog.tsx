@@ -4,6 +4,7 @@
 import { useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { AlertTriangle } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 import { AppDialog } from "@/components/modals/app-dialog";
 import { Button } from "@/components/ui/button";
@@ -17,6 +18,7 @@ import { suppliersQueryKey } from "./query-keys";
 
 export function SupplierDeactivateDialog() {
   const queryClient = useQueryClient();
+  const router = useRouter();
   const supplier = useInventoryUI(selectSupplierStatusDialog).supplier;
   const closeSupplierStatusDialog = useInventoryUI(
     (s) => s.closeSupplierStatusDialog,
@@ -44,6 +46,7 @@ export function SupplierDeactivateDialog() {
     }
 
     await queryClient.invalidateQueries({ queryKey: suppliersQueryKey });
+    router.refresh();
     handleClose();
   }
 

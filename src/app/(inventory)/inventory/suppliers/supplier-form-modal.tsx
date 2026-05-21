@@ -7,6 +7,7 @@ import { useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useQueryClient } from "@tanstack/react-query";
 import { Controller, useForm } from "react-hook-form";
+import { useRouter } from "next/navigation";
 
 import { AppDialog } from "@/components/modals/app-dialog";
 import { Button } from "@/components/ui/button";
@@ -30,6 +31,7 @@ import {
 
 export function SupplierFormModal() {
   const queryClient = useQueryClient();
+  const router = useRouter();
   const { open, supplier } = useInventoryUI(selectSupplierForm);
   const closeSupplierForm = useInventoryUI((s) => s.closeSupplierForm);
 
@@ -54,6 +56,7 @@ export function SupplierFormModal() {
     }
 
     await queryClient.invalidateQueries({ queryKey: suppliersQueryKey });
+    router.refresh();
     handleClose();
   }
 

@@ -11,7 +11,7 @@ import {
   useReactTable,
   type ColumnFiltersState,
 } from "@tanstack/react-table";
-import { FilterIcon, PlusIcon } from "lucide-react";
+import { CircleDollarSign, FilterIcon, PlusIcon, Truck, ClipboardList } from "lucide-react";
 
 import { DataTablePagination } from "@/components/data-table/data-table-pagination";
 import { Button } from "@/components/ui/button";
@@ -122,12 +122,23 @@ export function PurchaseOrdersClient({
   return (
     <>
       <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        <SummaryCard label="Active POs" value={activePOs.toString()} />
-        <SummaryCard label="Total value" value={formatPhpAmount(totalValue)} />
+        <SummaryCard
+          label="Active POs"
+          value={activePOs.toString()}
+          color="sky"
+          icon={ClipboardList}
+        />
+        <SummaryCard
+          label="Total value"
+          value={formatPhpAmount(totalValue)}
+          color="green"
+          icon={CircleDollarSign}
+        />
         <SummaryCard
           label="Pending delivery"
           value={pendingDelivery.toString()}
-          tone={pendingDelivery > 0 ? "warning" : "neutral"}
+          color={pendingDelivery > 0 ? "amber" : "green"}
+          icon={Truck}
         />
       </section>
 

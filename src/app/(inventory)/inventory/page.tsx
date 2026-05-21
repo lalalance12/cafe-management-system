@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { AlertTriangle, Boxes, PackageX, Truck } from "lucide-react";
 
 import { createClient } from "@/lib/supabase/server";
 import { MOCK_STOCK, type StockRow } from "@/lib/mock/inventory";
@@ -49,18 +50,30 @@ export default async function InventoryPage() {
       </header>
 
       <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        <SummaryCard label="Items tracked" value={totalItems.toString()} />
+        <SummaryCard
+          label="Items tracked"
+          value={totalItems.toString()}
+          color="green"
+          icon={Boxes}
+        />
         <SummaryCard
           label="Low stock alerts"
           value={`${lowStockCount} item${lowStockCount === 1 ? "" : "s"}`}
-          tone={lowStockCount > 0 ? "warning" : "neutral"}
+          color={lowStockCount > 0 ? "amber" : "green"}
+          icon={AlertTriangle}
         />
         <SummaryCard
           label="Out of stock"
           value={`${outOfStockCount} item${outOfStockCount === 1 ? "" : "s"}`}
-          tone={outOfStockCount > 0 ? "danger" : "neutral"}
+          color={outOfStockCount > 0 ? "red" : "green"}
+          icon={PackageX}
         />
-        <SummaryCard label="Open purchase orders" value="—" />
+        <SummaryCard
+          label="Open purchase orders"
+          value="—"
+          color="sky"
+          icon={Truck}
+        />
       </section>
 
       <StockTableClient rows={rows} />
