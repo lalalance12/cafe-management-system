@@ -6,11 +6,6 @@ import { AppShell, type NavItem } from "@/components/layout/app-shell";
 
 const NAV: ReadonlyArray<NavItem> = [
   { href: "/inventory", label: "Stock levels", icon: "package" },
-  {
-    href: "/inventory/alerts",
-    label: "Low stock alerts",
-    icon: "triangleAlert",
-  },
   { href: "/inventory/suppliers", label: "Suppliers", icon: "truck" },
   {
     href: "/inventory/purchase-orders",
